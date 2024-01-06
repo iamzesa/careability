@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "514521124352",
+    "project_id": "careability-74af2",
+    "storage_bucket": "careability-74af2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514521124352:android:ccfeb232bb087f81f092e5",
+        "android_client_info": {
+          "package_name": "com.careability.techno"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514521124352-va019n2s8ie2nk1h1bosstro56tq9efa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0SCQ16Y4KLzHKlCZcD3w8IdrYHSInR1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514521124352-va019n2s8ie2nk1h1bosstro56tq9efa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
