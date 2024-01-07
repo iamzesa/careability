@@ -197,6 +197,21 @@ class _ParentHomePageState extends State<ParentHomePage> {
               },
             ),
           ),
+          SizedBox(
+            height: 10,
+          ),
+          Column(
+            children: [
+              Text(
+                "List of Child Impairments.",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text("Click to View"),
+            ],
+          ),
           Expanded(child: _buildDisorderList()),
         ],
       ),

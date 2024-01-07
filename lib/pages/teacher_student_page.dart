@@ -1,6 +1,7 @@
 import 'package:careability/pages/add_student_page.dart';
 import 'package:careability/pages/student_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,7 @@ class TeacherStudentPage extends StatefulWidget {
 class _TeacherStudentPageState extends State<TeacherStudentPage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _studentsStream;
+  final String? userEmail = FirebaseAuth.instance.currentUser?.email;
 
   @override
   void initState() {
@@ -27,13 +29,23 @@ class _TeacherStudentPageState extends State<TeacherStudentPage> {
     super.dispose();
   }
 
-  void _loadStudents() {
-    _studentsStream =
-        FirebaseFirestore.instance.collection('student').snapshots();
+  void _loadStudents() async {
+    // String? parentEmail = await getCurrentUserEmail();
+
+    if (userEmail != null) {
+      print('Parent Email: $userEmail'); // Print parent's email
+
+      _studentsStream = FirebaseFirestore.instance
+          .collection('student')
+          .where('teacher',
+              isEqualTo: FirebaseFirestore.instance.doc('teacher/$userEmail'))
+          .snapshots();
+    } else {
+      print('Teacher Email is null');
+    }
   }
 
   void _deleteStudent(String documentId) {
-    // Perform the deletion logic using Firestore and the provided documentId
     FirebaseFirestore.instance
         .collection('student')
         .doc(documentId)

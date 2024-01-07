@@ -14,6 +14,8 @@ class AddStudentPage extends StatefulWidget {
 }
 
 class _AddStudentPageState extends State<AddStudentPage> {
+  Map<String, String> mentalDisorderMap = {};
+  String? selectedDisorderId;
   // Text editing controllers
   final emailController = TextEditingController();
   final studentNameController = TextEditingController();
@@ -31,16 +33,20 @@ class _AddStudentPageState extends State<AddStudentPage> {
       final teacherEmail = user.email;
 
       final parentEmail = emailController.text;
-      final parentReference = 'parent/$parentEmail';
-
-      final mentalDisorderReference =
-          'mental_disorder/${mentalDisorderController.text}';
+      final parentReference =
+          FirebaseFirestore.instance.doc('parent/$parentEmail');
+      final selectedDisorderId =
+          mentalDisorderMap[selectedMentalDisorder ?? ''];
+      final mentalDisorderReference = selectedDisorderId != null
+          ? FirebaseFirestore.instance
+              .doc('mental_disorder/$selectedDisorderId')
+          : null;
 
       final studentData = {
         'student_name': studentNameController.text,
         'parent': parentReference,
         'parent_name': parentNameController.text,
-        'teacher': 'teacher/$teacherEmail',
+        'teacher': FirebaseFirestore.instance.doc('teacher/$teacherEmail'),
         'mental_disorder': mentalDisorderReference,
         'status': statusController.text,
         'information': informationController.text,
@@ -52,13 +58,11 @@ class _AddStudentPageState extends State<AddStudentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Student added successfully!'),
-            duration: Duration(seconds: 2), // Adjust duration as needed
+            duration: Duration(seconds: 2),
           ),
         );
-
         print('Student added successfully!');
       } catch (e) {
-        // Show an error message or handle the error appropriately.
         print('Error adding student: $e');
       }
     }
@@ -73,19 +77,29 @@ class _AddStudentPageState extends State<AddStudentPage> {
 
   Future<void> fetchMentalDisorders() async {
     try {
-      // Replace 'mental_disorder' with your collection name
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance.collection('mental_disorder').get();
 
-      List<String> disorders = [];
+      Map<String, String> tempMap = {}; // Temporary map
 
       for (var doc in querySnapshot.docs) {
-        disorders.add(doc['disorder_name']);
+        final disorderName = doc['disorder_name'];
+        final disorderId = doc.id; // Retrieve the document ID
+
+        tempMap[disorderName] = disorderId; // Store name-ID pair in the map
       }
 
       setState(() {
-        mentalDisorderList = disorders;
+        mentalDisorderMap = tempMap; // Assign tempMap to mentalDisorderMap
+        mentalDisorderList =
+            mentalDisorderMap.keys.toList(); // Update disorder list
       });
+
+      // Print retrieved data
+      print('Retrieved Mental Disorders:');
+      for (var entry in mentalDisorderMap.entries) {
+        print('Name: ${entry.key}, ID: ${entry.value}');
+      }
     } catch (e) {
       print('Error fetching mental disorders: $e');
     }
@@ -143,7 +157,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: emailController,
-                    hintText: 'Email',
+                    hintText: 'Parent Email',
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),
@@ -155,9 +169,11 @@ class _AddStudentPageState extends State<AddStudentPage> {
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedMentalDisorder = newValue;
+                        selectedDisorderId = mentalDisorderMap[newValue ?? ''];
+                        print('Selected Disorder ID: $selectedDisorderId');
                       });
                     },
-                    hintText: 'Mental Disorder',
+                    hintText: 'Child Impairment',
                   ),
 
                   const SizedBox(height: 10),

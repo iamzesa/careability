@@ -15,6 +15,8 @@ class ParentStudentPage extends StatefulWidget {
 class _ParentStudentPageState extends State<ParentStudentPage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _studentsStream;
+  final String? userEmail = FirebaseAuth.instance.currentUser?.email;
+
   bool _isLoading = true;
 
   @override
@@ -29,26 +31,27 @@ class _ParentStudentPageState extends State<ParentStudentPage> {
     super.dispose();
   }
 
-  Future<String?> getCurrentUserEmail() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? user = auth.currentUser;
+  // Future<String?> getCurrentUserEmail() async {
+  //   FirebaseAuth auth = FirebaseAuth.instance;
+  //   User? user = auth.currentUser;
 
-    if (user != null) {
-      return user.email;
-    }
+  //   if (user != null) {
+  //     return user.email;
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
   void _loadStudents() async {
-    String? parentEmail = await getCurrentUserEmail();
+    // String? parentEmail = await getCurrentUserEmail();
 
-    if (parentEmail != null) {
-      print('Parent Email: $parentEmail'); // Print parent's email
+    if (userEmail != null) {
+      print('Parent Email: $userEmail'); // Print parent's email
 
       _studentsStream = FirebaseFirestore.instance
           .collection('student')
-          .where('parent', isEqualTo: 'parent/$parentEmail')
+          .where('parent',
+              isEqualTo: FirebaseFirestore.instance.doc('parent/$userEmail'))
           .snapshots();
 
       setState(() {

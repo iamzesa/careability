@@ -129,7 +129,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
           );
         }
 
-        return const Center(child: Text('No mental disorders found.'));
+        return const Center(child: Text('No child impairments found.'));
       },
     );
   }
@@ -172,7 +172,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               controller: _searchController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
-                hintText: 'Search for mental disorders',
+                hintText: 'Search for child impairments',
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide:
@@ -181,8 +181,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               ),
               onChanged: (value) {
                 print('Searching for: $value');
-                // TODO: Implement filter logic using 'value' for search
-                // Modify the _disordersStream based on the search value
+
                 if (value.isNotEmpty) {
                   _disordersStream = FirebaseFirestore.instance
                       .collection('mental_disorder')
@@ -196,6 +195,21 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                 setState(() {}); // Trigger a rebuild to reflect changes
               },
             ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Column(
+            children: [
+              Text(
+                "List of Child Impairments.",
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text("Click to View"),
+            ],
           ),
           Expanded(child: _buildDisorderList()),
           MyButton(
