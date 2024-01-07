@@ -68,16 +68,12 @@ class _SignupPageState extends State<SignupPage> {
             'email': emailController.text,
             'firstName': firstNameController.text,
             'lastName': lastNameController.text,
-            // Other parent-specific fields can be added here
           });
         }
 
         // Close loading dialog
         Navigator.pop(context);
 
-        // Show success message
-
-        // Reset text fields after a delay
         Future.delayed(const Duration(seconds: 2), () {
           resetTextFields();
           Navigator.pop(context);
@@ -126,6 +122,46 @@ class _SignupPageState extends State<SignupPage> {
         );
       },
     );
+  }
+
+  Future<String?> fetchTermsAndConditions() async {
+    try {
+      DocumentSnapshot termsSnapshot = await FirebaseFirestore.instance
+          .collection('terms_and_conditions')
+          .doc('terms')
+          .get();
+
+      String? termsText = termsSnapshot['text'];
+      return termsText;
+    } catch (e) {
+      print('Error fetching terms and conditions: $e');
+      return null;
+    }
+  }
+
+  void _showTermsAndConditionsDialog() {
+    fetchTermsAndConditions().then((termsText) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Terms and Conditions'),
+            content: SingleChildScrollView(
+              child: Text(
+                termsText ?? 'Failed to retrieve terms.',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 
   @override
@@ -266,7 +302,8 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Checkbox for terms and conditions
+                  // Checkbox sa terms and conditions ug text
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -278,11 +315,16 @@ class _SignupPageState extends State<SignupPage> {
                           });
                         },
                       ),
-                      Text(
-                        'I agree to the terms and conditions',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
+                      GestureDetector(
+                        onTap: () {
+                          _showTermsAndConditionsDialog();
+                        },
+                        child: Text(
+                          'I agree to the terms and conditions',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -324,37 +366,40 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       // Google button for sign-up
                       SquareTile(
-                        onTap: () async {
-                          final authService =
-                              AuthService(); // Create an instance of AuthService
-                          final role =
-                              Provider.of<UserRole>(context, listen: false)
-                                  .role;
+                        onTap: areTermsAccepted
+                            ? () async {
+                                final authService =
+                                    AuthService(); // Create an instance of AuthService
+                                final role = Provider.of<UserRole>(context,
+                                        listen: false)
+                                    .role;
 
-                          if (role == null || role.isEmpty) {
-                            // Show an error dialog if the role is not selected
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Role Not Selected'),
-                                  content: const Text(
-                                    'Please select a role (parent or teacher) before signing up with Google.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          } else {
-                            print('Role from SquareTile 04/04 $role');
-                            authService.signUpWithGoogle(role, context);
-                          }
-                        },
+                                if (role == null || role.isEmpty) {
+                                  // Show an error dialog if the role is not selected
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Role Not Selected'),
+                                        content: const Text(
+                                          'Please select a role (parent or teacher) before signing up with Google.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  print('Role from SquareTile 04/04 $role');
+                                  authService.signUpWithGoogle(role, context);
+                                }
+                              }
+                            : null,
                         imagePath: 'lib/images/google.png',
                       ),
                     ],

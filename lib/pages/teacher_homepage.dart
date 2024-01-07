@@ -6,10 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'disorder_details.dart';
 
-void signUserOut() {
-  FirebaseAuth.instance.signOut();
-}
-
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({super.key});
 
@@ -21,6 +17,15 @@ class TeacherHomePage extends StatefulWidget {
 class _TeacherHomePageState extends State<TeacherHomePage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _disordersStream;
+
+  void signUserOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print('User signed out successfully.');
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -138,7 +143,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: const [
+        actions: [
           IconButton(
             onPressed: signUserOut,
             icon: Icon(Icons.logout),

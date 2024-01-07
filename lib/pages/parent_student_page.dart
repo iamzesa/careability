@@ -1,5 +1,6 @@
 import 'package:careability/pages/add_student_page.dart';
 import 'package:careability/pages/student_details.dart';
+import 'package:careability/pages/student_details_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -72,7 +73,7 @@ class _ParentStudentPageState extends State<ParentStudentPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => StudentDetailsPage(
+            builder: (context) => StudentDetailsViewOnly(
               studentDetails: {
                 'student_name': student['student_name'],
                 'parent_name': student['parent_name'],
@@ -150,6 +151,9 @@ class _ParentStudentPageState extends State<ParentStudentPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          SizedBox(
+            height: 12,
+          ),
           Expanded(child: _buildStudentListView()),
         ],
       ),

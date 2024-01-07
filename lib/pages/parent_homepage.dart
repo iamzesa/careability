@@ -6,10 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'disorder_details.dart';
 
-void signUserOut() {
-  FirebaseAuth.instance.signOut();
-}
-
 class ParentHomePage extends StatefulWidget {
   const ParentHomePage({super.key});
 
@@ -21,6 +17,15 @@ class ParentHomePage extends StatefulWidget {
 class _ParentHomePageState extends State<ParentHomePage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _disordersStream;
+
+  void signUserOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print('User signed out successfully.');
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -129,7 +134,7 @@ class _ParentHomePageState extends State<ParentHomePage> {
           );
         }
 
-        return const Center(child: Text('No mental disorders found.'));
+        return const Center(child: Text('No child Impairment found.'));
       },
     );
   }
@@ -138,7 +143,7 @@ class _ParentHomePageState extends State<ParentHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: const [
+        actions: [
           IconButton(
             onPressed: signUserOut,
             icon: Icon(Icons.logout),
@@ -172,7 +177,7 @@ class _ParentHomePageState extends State<ParentHomePage> {
               controller: _searchController,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
-                hintText: 'Search for mental disorders',
+                hintText: 'Search for Child Impairment',
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide:

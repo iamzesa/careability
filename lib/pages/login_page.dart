@@ -82,6 +82,46 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<String?> fetchTermsAndConditions() async {
+    try {
+      DocumentSnapshot termsSnapshot = await FirebaseFirestore.instance
+          .collection('terms_and_conditions')
+          .doc('terms')
+          .get();
+
+      String? termsText = termsSnapshot['text'];
+      return termsText;
+    } catch (e) {
+      print('Error fetching terms and conditions: $e');
+      return null;
+    }
+  }
+
+  void _showTermsAndConditionsDialog() {
+    fetchTermsAndConditions().then((termsText) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Terms and Conditions'),
+            content: SingleChildScrollView(
+              child: Text(
+                termsText ?? 'Failed to retrieve terms.',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
   void navigateToHomePage(BuildContext context, String role, String userId) {
     print('Selected Role: $role');
     if (role == 'teacher' || role == 'parent') {
@@ -286,11 +326,16 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         },
                       ),
-                      Text(
-                        'I agree to the terms and conditions',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
+                      GestureDetector(
+                        onTap: () {
+                          _showTermsAndConditionsDialog();
+                        },
+                        child: Text(
+                          'I agree to the terms and conditions',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -333,34 +378,37 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       // Google button
                       SquareTile(
-                        onTap: () {
-                          final authService =
-                              AuthService(); // Create an instance of AuthService
-                          final role =
-                              Provider.of<UserRole>(context, listen: false)
-                                  .role;
+                        onTap: areTermsAccepted
+                            ? () {
+                                final authService = AuthService();
+                                final role = Provider.of<UserRole>(context,
+                                        listen: false)
+                                    .role;
 
-                          if (role != null) {
-                            authService.signInWithGoogle(role);
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Role Not Selected'),
-                                  content: const Text(
-                                      'Please select a role (parent or teacher) before signing up with Google.'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                        },
+                                if (role != null) {
+                                  authService.signInWithGoogle(role);
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Role Not Selected'),
+                                        content: const Text(
+                                          'Please select a role (parent or teacher) before signing up with Google.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              }
+                            : null,
                         imagePath: 'lib/images/google.png',
                       ),
                     ],

@@ -122,7 +122,8 @@ class AuthService {
           builder: (context) {
             return AlertDialog(
               title: Text('Success'),
-              content: Text('Signed up successfully. Please log in now.'),
+              content:
+                  Text('Signed up successfully. Click back to go to Homepage.'),
               actions: [
                 TextButton(
                   onPressed: () {
