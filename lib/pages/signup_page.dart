@@ -18,7 +18,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  String? selectedRole;
+  late AuthService authService;
 
   // text editing controllers
   final emailController = TextEditingController();
@@ -32,6 +32,8 @@ class _SignupPageState extends State<SignupPage> {
 
   // sign user in method
   void signUserUp() async {
+    final role = Provider.of<UserRole>(context, listen: false).role;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -48,7 +50,7 @@ class _SignupPageState extends State<SignupPage> {
           password: passwordController.text,
         );
 
-        if (selectedRole == 'teacher') {
+        if (role == 'teacher') {
           await FirebaseFirestore.instance
               .collection('teacher')
               .doc(emailController.text)
@@ -58,7 +60,7 @@ class _SignupPageState extends State<SignupPage> {
             'lastName': lastNameController.text,
             'advisory': advisoryController.text,
           });
-        } else if (selectedRole == 'parent') {
+        } else if (role == 'parent') {
           await FirebaseFirestore.instance
               .collection('parent')
               .doc(emailController.text)
@@ -74,8 +76,6 @@ class _SignupPageState extends State<SignupPage> {
         Navigator.pop(context);
 
         // Show success message
-        showSuccessMessage(
-            'Account created successfully! You are automatically logged in!');
 
         // Reset text fields after a delay
         Future.delayed(const Duration(seconds: 2), () {
@@ -102,15 +102,13 @@ class _SignupPageState extends State<SignupPage> {
     advisoryController.clear();
   }
 
-  void showSuccessMessage(String message) {
+  void showSuccessMessage(BuildContext context, String message) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Center(child: Text('Success')),
-          content: Center(child: Text(message)),
-        );
-      },
+      builder: (_) => AlertDialog(
+        title: const Center(child: Text('Success! ')),
+        content: Center(child: Text(message)),
+      ),
     );
   }
 
@@ -132,6 +130,7 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = Provider.of<UserRole>(context, listen: false).role;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orangeAccent,
@@ -181,23 +180,27 @@ class _SignupPageState extends State<SignupPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      //teacher radio button
                       Radio<String>(
                         value: 'teacher',
-                        groupValue: selectedRole,
+                        groupValue: Provider.of<UserRole>(context).role,
                         onChanged: (value) {
                           setState(() {
-                            selectedRole = value;
+                            Provider.of<UserRole>(context, listen: false)
+                                .setRole(value!);
                             print('Role: $value');
                           });
                         },
                       ),
                       const Text('Teacher'),
+                      //parent radio button
                       Radio<String>(
                         value: 'parent',
-                        groupValue: selectedRole,
+                        groupValue: Provider.of<UserRole>(context).role,
                         onChanged: (value) {
                           setState(() {
-                            selectedRole = value;
+                            Provider.of<UserRole>(context, listen: false)
+                                .setRole(value!);
                             print('Role: $value');
                           });
                         },
@@ -205,7 +208,6 @@ class _SignupPageState extends State<SignupPage> {
                       const Text('Parent'),
                     ],
                   ),
-
                   //firstname and lastname
                   MyTextField(
                     controller: firstNameController,
@@ -229,7 +231,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   const SizedBox(height: 10),
-                  if (selectedRole == 'teacher')
+                  if (role == 'teacher')
                     Column(
                       children: [
                         MyTextField(
@@ -314,27 +316,31 @@ class _SignupPageState extends State<SignupPage> {
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 20),
+                  SizedBox(height: 15),
 
                   // google sign up buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Google button
+                      // Google button for sign-up
                       SquareTile(
-                        onTap: () {
-                          if (selectedRole != null) {
-                            AuthService().signInWithGoogle(selectedRole);
-                          } else {
-                            // Show an error message indicating the user needs to select a role
+                        onTap: () async {
+                          final authService =
+                              AuthService(); // Create an instance of AuthService
+                          final role =
+                              Provider.of<UserRole>(context, listen: false)
+                                  .role;
+
+                          if (role == null || role.isEmpty) {
+                            // Show an error dialog if the role is not selected
                             showDialog(
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
                                   title: const Text('Role Not Selected'),
                                   content: const Text(
-                                      'Please select a role (parent or teacher) before signing up with Google.'),
+                                    'Please select a role (parent or teacher) before signing up with Google.',
+                                  ),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
@@ -344,12 +350,16 @@ class _SignupPageState extends State<SignupPage> {
                                 );
                               },
                             );
+                          } else {
+                            print('Role from SquareTile 04/04 $role');
+                            authService.signUpWithGoogle(role, context);
                           }
                         },
                         imagePath: 'lib/images/google.png',
                       ),
                     ],
                   ),
+                  SizedBox(height: 20)
                 ],
               ),
             ),

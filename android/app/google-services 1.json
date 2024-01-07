@@ -29,13 +29,6 @@
             {
               "client_id": "514521124352-va019n2s8ie2nk1h1bosstro56tq9efa.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "514521124352-2ndpnrm7qnm099k05vi9kh8sjsuefnkm.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.careability"
-              }
             }
           ]
         }

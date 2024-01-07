@@ -22,6 +22,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  late AuthService authService;
+
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -332,9 +334,14 @@ class _LoginPageState extends State<LoginPage> {
                       // Google button
                       SquareTile(
                         onTap: () {
-                          final role = Provider.of<UserRole>(context).role;
+                          final authService =
+                              AuthService(); // Create an instance of AuthService
+                          final role =
+                              Provider.of<UserRole>(context, listen: false)
+                                  .role;
+
                           if (role != null) {
-                            AuthService().signInWithGoogle(role);
+                            authService.signInWithGoogle(role);
                           } else {
                             showDialog(
                               context: context,
@@ -383,7 +390,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
-                  )
+                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
