@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
-
-import '../user_role.dart';
 
 class DisorderDetailsPage extends StatefulWidget {
   final String disorderName;
@@ -65,11 +62,91 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
     });
   }
 
+  void saveChanges() async {
+    // Get updated values from text editing controllers
+    String updatedHowToDeal = _howToDealController.text;
+    String updatedDoInfo = _doInfoController.text;
+    String updatedDontInfo = _dontInfoController.text;
+    String updatedSymptoms = _symptomsController.text;
+    String updatedTreatment = _treatmentController.text;
+    String updatedFirstAid = _firstAidController.text;
+
+    try {
+      // Update Firestore with the new values
+      await FirebaseFirestore.instance
+          .collection('mental_disorder')
+          .doc(widget.disorderName)
+          .update({
+        'howToDeal': updatedHowToDeal,
+        'doInfo': updatedDoInfo,
+        'donts': updatedDontInfo,
+        'symptoms': updatedSymptoms,
+        'treatment': updatedTreatment,
+        'firstAid': updatedFirstAid,
+      });
+
+      // Show a snackbar to inform the user that changes were saved successfully
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Changes saved successfully')),
+      );
+    } catch (error) {
+      // Handle errors here (e.g., show an error message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save changes. Please try again.')),
+      );
+      // Optionally, log the error for debugging purposes
+      print('Error: $error');
+    }
+  }
+
+  void deleteDisorder() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('mental_disorder')
+          .doc(widget.disorderName)
+          .delete();
+
+      // Show a snackbar to inform the user that the disorder was deleted successfully
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Child Impairment deleted successfully')),
+      );
+
+      // Navigate back to the previous screen
+      Navigator.of(context).pop();
+    } catch (error) {
+      // Handle errors here (e.g., show an error message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Failed to delete Child Impairment. Please try again.')),
+      );
+      // Optionally, log the error for debugging purposes
+      print('Error: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Child Impairment Details'),
+        actions: [
+          IconButton(
+            icon: Icon(isEditable ? Icons.save : Icons.edit),
+            onPressed: () {
+              if (isEditable) {
+                saveChanges();
+              }
+              toggleEditMode(); // Toggle edit mode regardless
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              deleteDisorder();
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -87,37 +164,31 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
                 enabled: isEditable,
                 decoration: InputDecoration(labelText: 'How to Deal'),
               ),
-              SizedBox(height: 10.0),
               TextFormField(
                 controller: _doInfoController,
                 enabled: isEditable,
-                decoration: InputDecoration(labelText: 'Do\'s'),
+                decoration: InputDecoration(labelText: 'Dos'),
               ),
-              SizedBox(height: 10.0),
               TextFormField(
                 controller: _dontInfoController,
                 enabled: isEditable,
                 decoration: InputDecoration(labelText: 'Don\'ts'),
               ),
-              SizedBox(height: 10.0),
               TextFormField(
                 controller: _symptomsController,
                 enabled: isEditable,
                 decoration: InputDecoration(labelText: 'Symptoms'),
               ),
-              SizedBox(height: 10.0),
               TextFormField(
                 controller: _treatmentController,
                 enabled: isEditable,
                 decoration: InputDecoration(labelText: 'Treatment'),
               ),
-              SizedBox(height: 10.0),
               TextFormField(
                 controller: _firstAidController,
                 enabled: isEditable,
                 decoration: InputDecoration(labelText: 'First Aid'),
               ),
-              SizedBox(height: 10.0),
             ],
           ),
         ),

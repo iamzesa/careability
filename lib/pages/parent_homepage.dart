@@ -4,13 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'disorder_details.dart';
+import 'auth_page.dart';
+import 'disorder_details_edit.dart';
+import 'disorder_details_view.dart';
 
 class ParentHomePage extends StatefulWidget {
   const ParentHomePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ParentHomePageState createState() => _ParentHomePageState();
 }
 
@@ -18,13 +19,11 @@ class _ParentHomePageState extends State<ParentHomePage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _disordersStream;
 
-  void signUserOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      print('User signed out successfully.');
-    } catch (e) {
-      print('Error signing out: $e');
-    }
+  void signUserOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => AuthPage()),
+    );
   }
 
   @override
@@ -63,7 +62,7 @@ class _ParentHomePageState extends State<ParentHomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DisorderDetailsPage(
+            builder: (context) => DisorderViewPage(
               disorderName: disorderName,
               doInfo: doInfo,
               dontInfo: dontInfo,
@@ -145,7 +144,7 @@ class _ParentHomePageState extends State<ParentHomePage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: signUserOut,
+            onPressed: () => signUserOut(context),
             icon: Icon(Icons.logout),
           )
         ],

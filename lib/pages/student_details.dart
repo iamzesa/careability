@@ -72,6 +72,22 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
     }
   }
 
+  Future<void> fetchParentDetails() async {
+    final parentRef = widget.studentDetails['parent'] as DocumentReference;
+
+    parentEmailSnapshot = await parentRef.get();
+
+    DocumentSnapshot parentSnapshot = await parentRef.get();
+    if (parentSnapshot.exists) {
+      String contact = parentSnapshot['contact'];
+      String address = parentSnapshot['address'];
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   Future<void> updateStudentDetails() async {
     try {
       String studentName = widget.studentDetails['student_name'];

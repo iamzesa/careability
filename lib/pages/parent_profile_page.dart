@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+void signUserOut() {
+  FirebaseAuth.instance.signOut();
+}
+
 class ParentProfilePage extends StatelessWidget {
   const ParentProfilePage({Key? key}) : super(key: key);
 
@@ -12,6 +16,12 @@ class ParentProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Parent's Profile"),
+        actions: const [
+          IconButton(
+            onPressed: signUserOut,
+            icon: Icon(Icons.logout),
+          )
+        ],
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
@@ -44,6 +54,8 @@ class ParentProfilePage extends StatelessWidget {
           final firstName = parentData['firstName'] as String?;
           final lastName = parentData['lastName'] as String?;
           final email = parentData['email'] as String?;
+          final address = parentData['address'] as String?;
+          final contact = parentData['contact'] as String?;
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -66,12 +78,24 @@ class ParentProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
+                  SizedBox(height: 5),
                   Text(
                     'Last Name: $lastName',
                     style: TextStyle(fontSize: 18),
                   ),
+                  SizedBox(height: 5),
                   Text(
                     'Email: $email',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Contact: $contact',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Address: $address',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],

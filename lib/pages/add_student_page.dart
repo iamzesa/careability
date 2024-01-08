@@ -173,7 +173,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                         print('Selected Disorder ID: $selectedDisorderId');
                       });
                     },
-                    hintText: 'Child Impairment',
+                    hintText: 'Special Needs',
                   ),
 
                   const SizedBox(height: 10),

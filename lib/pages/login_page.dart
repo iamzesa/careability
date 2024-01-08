@@ -12,10 +12,9 @@ import 'home_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
-  final Function()? onTap;
   final String? userId;
 
-  const LoginPage({super.key, this.userId, required this.onTap});
+  const LoginPage({super.key, this.userId});
 
   @override
   State<LoginPage> createState() => _LoginPageState();

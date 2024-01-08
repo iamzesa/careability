@@ -19,12 +19,14 @@ class _StudentDetailsViewOnlyState extends State<StudentDetailsViewOnly> {
 
   late DocumentSnapshot? mentalDisorderSnapshot;
   late DocumentSnapshot? parentEmailSnapshot;
+  late DocumentSnapshot? teacherSnapshot;
 
   @override
   void initState() {
     super.initState();
     fetchMentalDisorderDetails();
-    fetchParentEmailDetails();
+    // fetchParentEmailDetails();
+    fetchTeacherDetails();
 
     status = widget.studentDetails['status'];
     information = widget.studentDetails['information'];
@@ -41,15 +43,25 @@ class _StudentDetailsViewOnlyState extends State<StudentDetailsViewOnly> {
     }
   }
 
-  Future<void> fetchParentEmailDetails() async {
-    final parentEmailRef = widget.studentDetails['parent'] as DocumentReference;
+  Future<void> fetchTeacherDetails() async {
+    final teacherRef = widget.studentDetails['teacher'] as DocumentReference;
 
-    parentEmailSnapshot = await parentEmailRef.get();
+    teacherSnapshot = await teacherRef.get();
 
     if (mounted) {
       setState(() {});
     }
   }
+
+  // Future<void> fetchParentEmailDetails() async {
+  //   final parentEmailRef = widget.studentDetails['parent'] as DocumentReference;
+
+  //   parentEmailSnapshot = await parentEmailRef.get();
+
+  //   if (mounted) {
+  //     setState(() {});
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -68,20 +80,42 @@ class _StudentDetailsViewOnlyState extends State<StudentDetailsViewOnly> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
               ),
               SizedBox(height: 8.0),
-              Text(
-                'Parent Name: ${widget.studentDetails['parent_name']}',
-                style: TextStyle(fontSize: 16.0),
-              ),
-              SizedBox(height: 8.0),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Parent Email: ${parentEmailSnapshot!['email']}',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ],
-              ),
+              // Text(
+              //   'Parent Name: ${widget.studentDetails['parent_name']}',
+              //   style: TextStyle(fontSize: 16.0),
+              // ),
+              // SizedBox(height: 8.0),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Text(
+              //       'Parent Email: ${parentEmailSnapshot!['email']}',
+              //       style: TextStyle(fontSize: 16.0),
+              //     ),
+              //   ],
+              // ),
+              if (teacherSnapshot != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Teacher Name: ${teacherSnapshot!['firstName']} ${teacherSnapshot!['lastName']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text(
+                      'Contact: ${teacherSnapshot!['contact']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              if (teacherSnapshot == null ||
+                  !teacherSnapshot!
+                      .exists) // Handle null or non-existent teacherSnapshot
+                Text(
+                  'Teacher details not found',
+                  style: TextStyle(fontSize: 16.0),
+                ),
 
               SizedBox(height: 8.0),
               Text(

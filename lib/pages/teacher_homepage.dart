@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'disorder_details.dart';
+import 'auth_page.dart';
+import 'disorder_details_edit.dart';
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({super.key});
@@ -18,13 +19,11 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   TextEditingController _searchController = TextEditingController();
   Stream<QuerySnapshot>? _disordersStream;
 
-  void signUserOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      print('User signed out successfully.');
-    } catch (e) {
-      print('Error signing out: $e');
-    }
+  void signUserOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => AuthPage()),
+    );
   }
 
   @override
@@ -145,7 +144,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: signUserOut,
+            onPressed: () => signUserOut(context),
             icon: Icon(Icons.logout),
           )
         ],

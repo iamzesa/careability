@@ -81,6 +81,7 @@ class _ParentStudentPageState extends State<ParentStudentPage> {
                 'information': student['information'],
                 'mental_disorder': student['mental_disorder'],
                 'parent': student['parent'],
+                'teacher': student['teacher'],
               },
             ),
           ),

@@ -27,6 +27,8 @@ class _SignupPageState extends State<SignupPage> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final advisoryController = TextEditingController();
+  final addressController = TextEditingController();
+  final contactController = TextEditingController();
 
   bool areTermsAccepted = false;
 
@@ -59,6 +61,8 @@ class _SignupPageState extends State<SignupPage> {
             'firstName': firstNameController.text,
             'lastName': lastNameController.text,
             'advisory': advisoryController.text,
+            'address': firstNameController.text,
+            'contact': lastNameController.text,
           });
         } else if (role == 'parent') {
           await FirebaseFirestore.instance
@@ -68,18 +72,20 @@ class _SignupPageState extends State<SignupPage> {
             'email': emailController.text,
             'firstName': firstNameController.text,
             'lastName': lastNameController.text,
+            'address': firstNameController.text,
+            'contact': lastNameController.text,
           });
         }
 
         // Close loading dialog
         Navigator.pop(context);
+        showSuccessMessage('User signed up successfully!');
 
         Future.delayed(const Duration(seconds: 2), () {
           resetTextFields();
           Navigator.pop(context);
         });
       } else {
-        //show error message, paw do not match
         showErrorMessage('Passwords do not match');
         Navigator.pop(context); // Close the loading dialog
       }
@@ -96,15 +102,27 @@ class _SignupPageState extends State<SignupPage> {
     firstNameController.clear();
     lastNameController.clear();
     advisoryController.clear();
+    contactController.clear();
+    addressController.clear();
   }
 
-  void showSuccessMessage(BuildContext context, String message) {
+  void showSuccessMessage(String message) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Center(child: Text('Success! ')),
-        content: Center(child: Text(message)),
-      ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -256,6 +274,24 @@ class _SignupPageState extends State<SignupPage> {
                     hintText: 'Last Name',
                     obscureText: false,
                   ),
+                  const SizedBox(height: 10),
+                  if (role == 'teacher')
+                    Column(
+                      children: [
+                        MyTextField(
+                          controller: addressController,
+                          hintText: 'Address',
+                          obscureText: false,
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: contactController,
+                          hintText: 'Contact Number',
+                          obscureText: false,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
 
                   const SizedBox(height: 10),
 

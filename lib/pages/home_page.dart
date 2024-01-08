@@ -8,8 +8,9 @@ class HomePage extends StatefulWidget {
   final String userRole;
   final String userId;
 
-  const HomePage({Key? key, required this.userRole, required this.userId})
+  HomePage({Key? key, required this.userRole, required this.userId})
       : super(key: key);
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
