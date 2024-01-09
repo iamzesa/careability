@@ -43,7 +43,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
         FirebaseFirestore.instance.collection('mental_disorder').snapshots();
   }
 
-  Widget _buildDisorderBlock(DocumentSnapshot disorder) {
+  Widget _buildDisorderBlock(BuildContext context, DocumentSnapshot disorder) {
     String documentId = disorder.id;
 
     return GestureDetector(
@@ -57,12 +57,14 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
         String symptoms = disorder['symptoms'];
         String treatment = disorder['treatment'];
         String firstAid = disorder['first_aid'];
+        String description = disorder['description'];
 
         // Navigate to a new page to display disorder details
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => DisorderDetailsPage(
+              documentId: documentId,
               disorderName: disorderName,
               doInfo: doInfo,
               dontInfo: dontInfo,
@@ -70,6 +72,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               symptoms: symptoms,
               treatment: treatment,
               firstAid: firstAid,
+              descrption: description,
             ),
           ),
         );
@@ -128,7 +131,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             ),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              return _buildDisorderBlock(snapshot.data!.docs[index]);
+              return _buildDisorderBlock(context, snapshot.data!.docs[index]);
             },
           );
         }

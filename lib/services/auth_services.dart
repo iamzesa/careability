@@ -95,7 +95,9 @@ class AuthService {
           Map<String, dynamic> userData = {
             'email': user.email,
             'firstName': user.displayName,
-            'profileCompleted': false, // Set profileCompleted to false
+            'profileCompleted': false,
+            'contact': 'Please add',
+            'address': 'Please add',
           };
 
           if (role == 'teacher') {

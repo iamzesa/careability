@@ -22,6 +22,7 @@ class _AddDisorderPageState extends State<AddDisorderPage> {
   final symptomsController = TextEditingController();
   final treatmentController = TextEditingController();
   final firstAidController = TextEditingController();
+  final descriptionController = TextEditingController();
 
   Future<void> addDisorder() async {
     try {
@@ -38,12 +39,13 @@ class _AddDisorderPageState extends State<AddDisorderPage> {
         'symptoms': symptomsController.text,
         'treatment': treatmentController.text,
         'first_aid': firstAidController.text,
+        'description': descriptionController.text,
       });
 
       // Display success message or perform any necessary actions after adding the disorder
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Disorder added successfully!'),
+          content: Text('Child Impairment added successfully!'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -56,6 +58,7 @@ class _AddDisorderPageState extends State<AddDisorderPage> {
       symptomsController.clear();
       treatmentController.clear();
       firstAidController.clear();
+      descriptionController.clear();
 
       print('Disorder added successfully!');
     } catch (e) {
@@ -104,6 +107,12 @@ class _AddDisorderPageState extends State<AddDisorderPage> {
                   MyTextField(
                     controller: disorderNameController,
                     hintText: 'Impairment',
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 10),
+                  MyTextField(
+                    controller: descriptionController,
+                    hintText: 'Description',
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),

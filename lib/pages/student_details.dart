@@ -192,7 +192,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
               TextFormField(
                 controller: _informationController,
                 decoration: InputDecoration(
-                  labelText: 'Information',
+                  labelText: 'Observation',
                   border: OutlineInputBorder(),
                 ),
                 enabled: isEditable,

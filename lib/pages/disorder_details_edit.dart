@@ -9,8 +9,11 @@ class DisorderDetailsPage extends StatefulWidget {
   final String symptoms;
   final String treatment;
   final String firstAid;
+  final String descrption;
+  final String documentId;
 
   DisorderDetailsPage({
+    super.key,
     required this.disorderName,
     required this.howToDeal,
     required this.doInfo,
@@ -18,6 +21,8 @@ class DisorderDetailsPage extends StatefulWidget {
     required this.symptoms,
     required this.treatment,
     required this.firstAid,
+    required this.descrption,
+    required this.documentId,
   });
 
   @override
@@ -31,6 +36,8 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
   late TextEditingController _symptomsController;
   late TextEditingController _treatmentController;
   late TextEditingController _firstAidController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _disorderNameController;
 
   bool isEditable = false;
 
@@ -43,6 +50,8 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
     _symptomsController = TextEditingController(text: widget.symptoms);
     _treatmentController = TextEditingController(text: widget.treatment);
     _firstAidController = TextEditingController(text: widget.firstAid);
+    _descriptionController = TextEditingController(text: widget.descrption);
+    _disorderNameController = TextEditingController(text: widget.disorderName);
   }
 
   @override
@@ -53,6 +62,8 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
     _symptomsController.dispose();
     _treatmentController.dispose();
     _firstAidController.dispose();
+    _descriptionController.dispose();
+    _disorderNameController.dispose();
     super.dispose();
   }
 
@@ -70,19 +81,23 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
     String updatedSymptoms = _symptomsController.text;
     String updatedTreatment = _treatmentController.text;
     String updatedFirstAid = _firstAidController.text;
+    String updatedDescription = _descriptionController.text;
+    String updatedDisorderName = _disorderNameController.text;
 
     try {
       // Update Firestore with the new values
       await FirebaseFirestore.instance
           .collection('mental_disorder')
-          .doc(widget.disorderName)
+          .doc(widget.documentId)
           .update({
-        'howToDeal': updatedHowToDeal,
-        'doInfo': updatedDoInfo,
+        'description': updatedDescription,
+        'how_to_deal': updatedHowToDeal,
+        'dos': updatedDoInfo,
         'donts': updatedDontInfo,
         'symptoms': updatedSymptoms,
         'treatment': updatedTreatment,
-        'firstAid': updatedFirstAid,
+        'first_aid': updatedFirstAid,
+        'disorder_name': updatedDisorderName,
       });
 
       // Show a snackbar to inform the user that changes were saved successfully
@@ -154,9 +169,16 @@ class _DisorderDetailsPageState extends State<DisorderDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${widget.disorderName}',
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              TextFormField(
+                controller: _disorderNameController,
+                enabled: isEditable,
+                decoration: InputDecoration(labelText: 'Child Impairment'),
+              ),
+              SizedBox(height: 10.0),
+              TextFormField(
+                controller: _descriptionController,
+                enabled: isEditable,
+                decoration: InputDecoration(labelText: 'Description'),
               ),
               SizedBox(height: 10.0),
               TextFormField(

@@ -124,7 +124,7 @@ class _StudentDetailsViewOnlyState extends State<StudentDetailsViewOnly> {
               ),
               SizedBox(height: 8.0),
               Text(
-                'Information: ${widget.studentDetails['information']}',
+                'Observation: ${widget.studentDetails['information']}',
                 style: TextStyle(fontSize: 16.0),
               ),
               SizedBox(height: 8.0),

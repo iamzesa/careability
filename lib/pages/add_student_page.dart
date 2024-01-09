@@ -179,7 +179,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                   const SizedBox(height: 10),
                   MyTextField(
                     controller: informationController,
-                    hintText: 'Information',
+                    hintText: 'Observation',
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),

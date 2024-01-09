@@ -275,7 +275,7 @@ class _SignupPageState extends State<SignupPage> {
                     obscureText: false,
                   ),
                   const SizedBox(height: 10),
-                  if (role == 'teacher')
+                  if (role == 'parent')
                     Column(
                       children: [
                         MyTextField(
@@ -289,7 +289,6 @@ class _SignupPageState extends State<SignupPage> {
                           hintText: 'Contact Number',
                           obscureText: false,
                         ),
-                        const SizedBox(height: 10),
                       ],
                     ),
 

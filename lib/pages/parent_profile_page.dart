@@ -6,9 +6,14 @@ void signUserOut() {
   FirebaseAuth.instance.signOut();
 }
 
-class ParentProfilePage extends StatelessWidget {
+class ParentProfilePage extends StatefulWidget {
   const ParentProfilePage({Key? key}) : super(key: key);
 
+  @override
+  State<ParentProfilePage> createState() => _ParentProfilePageState();
+}
+
+class _ParentProfilePageState extends State<ParentProfilePage> {
   @override
   Widget build(BuildContext context) {
     final String? userEmail = FirebaseAuth.instance.currentUser?.email;
@@ -16,11 +21,19 @@ class ParentProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Parent's Profile"),
-        actions: const [
+        actions: [
           IconButton(
-            onPressed: signUserOut,
-            icon: Icon(Icons.logout),
-          )
+            onPressed: () async {
+              var result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditProfilePage()),
+              );
+              if (result != null && result) {
+                setState(() {});
+              }
+            },
+            icon: Icon(Icons.edit),
+          ),
         ],
       ),
       body: FutureBuilder<QuerySnapshot>(
@@ -31,7 +44,7 @@ class ParentProfilePage extends StatelessWidget {
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -44,7 +57,7 @@ class ParentProfilePage extends StatelessWidget {
           final parentDocs = snapshot.data?.docs;
 
           if (parentDocs == null || parentDocs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text('No parent data found.'),
             );
           }
@@ -105,5 +118,116 @@ class ParentProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class EditProfilePage extends StatefulWidget {
+  @override
+  _EditProfilePageState createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    final String? userEmail = FirebaseAuth.instance.currentUser?.email;
+
+    FirebaseFirestore.instance
+        .collection('parent')
+        .where('email', isEqualTo: userEmail)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final parentDoc = snapshot.docs.first;
+        final parentData = parentDoc.data() as Map<String, dynamic>;
+
+        setState(() {
+          _firstNameController.text = parentData['firstName'] ?? '';
+          _lastNameController.text = parentData['lastName'] ?? '';
+          _addressController.text = parentData['address'] ?? '';
+          _contactController.text = parentData['contact'] ?? '';
+        });
+      }
+    }).catchError((error) {
+      print("Error fetching document: $error");
+    });
+  }
+
+  void _saveChanges() {
+    final String? userEmail = FirebaseAuth.instance.currentUser?.email;
+    FirebaseFirestore.instance
+        .collection('parent')
+        .where('email', isEqualTo: userEmail)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final parentDoc = snapshot.docs.first;
+        parentDoc.reference.update({
+          'firstName': _firstNameController.text,
+          'lastName': _lastNameController.text,
+          'address': _addressController.text,
+          'contact': _contactController.text,
+        }).then((_) {
+          Navigator.pop(context, true); // Send a true value to indicate update
+        }).catchError((error) {
+          print("Error updating document: $error");
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: _firstNameController,
+              decoration: InputDecoration(labelText: 'First Name'),
+            ),
+            TextFormField(
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Last Name'),
+            ),
+            TextFormField(
+              controller: _addressController,
+              decoration: InputDecoration(labelText: 'Address'),
+            ),
+            TextFormField(
+              controller: _contactController,
+              decoration: InputDecoration(labelText: 'Contact'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveChanges,
+              child: Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _addressController.dispose();
+    _contactController.dispose();
+    super.dispose();
   }
 }

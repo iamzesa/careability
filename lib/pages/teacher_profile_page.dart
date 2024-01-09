@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class TeacherProfilePage extends StatelessWidget {
+void signUserOut() {
+  FirebaseAuth.instance.signOut();
+}
+
+class TeacherProfilePage extends StatefulWidget {
   const TeacherProfilePage({Key? key}) : super(key: key);
 
+  @override
+  State<TeacherProfilePage> createState() => _TeacherProfilePageState();
+}
+
+class _TeacherProfilePageState extends State<TeacherProfilePage> {
   @override
   Widget build(BuildContext context) {
     final String? userEmail = FirebaseAuth.instance.currentUser?.email;
@@ -12,6 +21,20 @@ class TeacherProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Teacher's Profile"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              var result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditProfilePage()),
+              );
+              if (result != null && result) {
+                setState(() {});
+              }
+            },
+            icon: Icon(Icons.edit),
+          ),
+        ],
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
@@ -21,7 +44,7 @@ class TeacherProfilePage extends StatelessWidget {
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -34,7 +57,7 @@ class TeacherProfilePage extends StatelessWidget {
           final teacherDocs = snapshot.data?.docs;
 
           if (teacherDocs == null || teacherDocs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text('No teacher data found.'),
             );
           }
@@ -43,11 +66,9 @@ class TeacherProfilePage extends StatelessWidget {
 
           final firstName = teacherData['firstName'] as String?;
           final lastName = teacherData['lastName'] as String?;
-          final advisory = teacherData['advisory'] as String?;
           final email = teacherData['email'] as String?;
-
-          print(
-              'Advisory: $advisory'); // Add this line to check the value of advisory
+          final address = teacherData['address'] as String?;
+          final contact = teacherData['contact'] as String?;
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -70,16 +91,24 @@ class TeacherProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
+                  SizedBox(height: 5),
                   Text(
                     'Last Name: $lastName',
                     style: TextStyle(fontSize: 18),
                   ),
+                  SizedBox(height: 5),
                   Text(
                     'Email: $email',
                     style: TextStyle(fontSize: 18),
                   ),
+                  SizedBox(height: 5),
                   Text(
-                    'Advisory: $advisory',
+                    'Contact: $contact',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Address: $address',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
@@ -89,5 +118,116 @@ class TeacherProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class EditProfilePage extends StatefulWidget {
+  @override
+  _EditProfilePageState createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    final String? userEmail = FirebaseAuth.instance.currentUser?.email;
+
+    FirebaseFirestore.instance
+        .collection('teacher')
+        .where('email', isEqualTo: userEmail)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final teacherDoc = snapshot.docs.first;
+        final teacherData = teacherDoc.data() as Map<String, dynamic>;
+
+        setState(() {
+          _firstNameController.text = teacherData['firstName'] ?? '';
+          _lastNameController.text = teacherData['lastName'] ?? '';
+          _addressController.text = teacherData['address'] ?? '';
+          _contactController.text = teacherData['contact'] ?? '';
+        });
+      }
+    }).catchError((error) {
+      print("Error fetching document: $error");
+    });
+  }
+
+  void _saveChanges() {
+    final String? userEmail = FirebaseAuth.instance.currentUser?.email;
+    FirebaseFirestore.instance
+        .collection('teacher')
+        .where('email', isEqualTo: userEmail)
+        .limit(1)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        final teacherDoc = snapshot.docs.first;
+        teacherDoc.reference.update({
+          'firstName': _firstNameController.text,
+          'lastName': _lastNameController.text,
+          'address': _addressController.text,
+          'contact': _contactController.text,
+        }).then((_) {
+          Navigator.pop(context, true); // Send a true value to indicate update
+        }).catchError((error) {
+          print("Error updating document: $error");
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: _firstNameController,
+              decoration: InputDecoration(labelText: 'First Name'),
+            ),
+            TextFormField(
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Last Name'),
+            ),
+            TextFormField(
+              controller: _addressController,
+              decoration: InputDecoration(labelText: 'Address'),
+            ),
+            TextFormField(
+              controller: _contactController,
+              decoration: InputDecoration(labelText: 'Contact'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveChanges,
+              child: Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _addressController.dispose();
+    _contactController.dispose();
+    super.dispose();
   }
 }
